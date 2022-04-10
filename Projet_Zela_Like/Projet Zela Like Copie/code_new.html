@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" /><title>Projet zelda like !</title>
+    <script
+src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css"> body { margin: 0; }</style>
+</head>
+<body>
+<script type="text/javascript">
+var config = {
+    type: Phaser.AUTO,
+    width: 1020, height: 1020, // taile du jeu(affiché)
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 0}, //force de gravite
+            debug: false
+}},
+    scene: {preload: preload, create: create, update: update }
+};
+
+new Phaser.Game(config);
+function preload(){
+    this.load.image('map', 'assets/map.png'); //inroporation de images
+
+    
+    
+    this.load.spritesheet('perso','assets/perso2.png',
+        { frameWidth: 63, frameHeight: 59 });
+}
+var platforms;
+
+function create(){ 
+    this.add.image(2660, 4040, 'map'); //coordonnee de chaque images
+
+    
+
+    
+
+    platforms = this.physics.add.staticGroup();
+    platforms.create(950, 1068, 'panneau').setScale(1).refreshBody();
+  
+   
+    player = this.physics.add.sprite(1000, 550, 'perso'); // apparition perso/player
+    player.setBounce(0.2);
+    player.setCollideWorldBounds(true);
+    this.physics.add.collider(player, platforms);
+
+// redimentionnement du monde
+        this.physics.world.setBounds(0, 0, 5020, 10150);//largeur - hauteur
+        //  taille du monde
+        this.cameras.main.setBounds(0, 0, 5020, 10150); //largeur - hauteur
+        // limite de la caméra
+        this.cameras.main.startFollow(player);
+
+this.anims.create({
+        key: 'left',
+        frames: this.anims.generateFrameNumbers('perso', {start:12,end:15}),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'turn',
+        frames: [ { key: 'perso', frame: 4 } ],
+        frameRate: 20
+    });
+
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('perso', {start:0,end:3}),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    cursors = this.input.keyboard.createCursorKeys()
+
+    scoreText=this.add.text(16,16,'score: 0',{fontSize:'32px',fill:'#f78'});
+    //affiche un texte a l’ecran, pour le score
+stars = this.physics.add.group({
+        key: 'monstre1', repeat: 0, // nombre de monstre +1
+        setXY: { x: 250, y: 450, stepX: 400 } // Coordonee de l'apparition des monstres
+    });
+
+    stars.children.iterate(function (child) {
+        child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.6));
+    }); //chaque etoile va rebondir un peu differemment
+    this.physics.add.collider(stars, platforms);
+            //et collisionne avec les plateformes
+    this.physics.add.overlap(player, stars, collectStar, null, this);
+    //le contact perso/etoile ne genere pas de collision (overlap)
+    //mais en revanche cela declenche une fonction collectStar
+}
+
+
+function collectStar(player, star){
+    star.disableBody(true, true); // l’étoile disparaît
+    score += 10; //augmente le score de 10
+    scoreText.setText('Score: ' + score); //met à jour l’affichage du score
+}
+function update(){
+    
+    if (cursors.up.isDown) {
+                player.setVelocityY(-300);
+
+            }
+
+            else if (cursors.down.isDown) {
+                player.setVelocityY(300); //vers le bas
+
+            }
+
+            else {// sinon
+                player.setVelocityY(0); //vitesse nulle
+                player.anims.play('turn');
+            }
+if (cursors.up.isDown && cursors.left.isDown) {
+                player.setVelocityY(-200);
+                player.setVelocityX(-200); //alors vitesse négative en X
+                player.anims.play('left', true); //et animation => gauche
+
+            }
+
+            else if (cursors.up.isDown && cursors.right.isDown) {
+                player.setVelocityY(-200);
+                player.setVelocityX(200);//alors vitesse positive en X
+                player.anims.play('right', true); //et animation => droite
+
+            }
+
+
+
+            if (cursors.down.isDown && cursors.left.isDown) {
+                player.setVelocityY(200);
+                player.setVelocityX(-200); //alors vitesse négative en X
+                player.anims.play('left', true); //et animation => gauche
+
+            }
+
+            else if (cursors.down.isDown && cursors.right.isDown) {
+                player.setVelocityY(200);
+                player.setVelocityX(200);//alors vitesse positive en X
+                player.anims.play('right', true); //et animation => droite
+
+            }
+if (cursors.left.isDown){ //si la touche gauche est appuyée
+                player.setVelocityX(-300); //alors vitesse négative en X
+                player.anims.play('left', true); //et animation => gauche
+
+            }
+
+
+            else if (cursors.right.isDown){ //sinon si la touche bas est appuyée
+                player.setVelocityX(300);//alors vitesse positive en X
+                player.anims.play('right', true); //et animation => droite
+
+            }
+
+            else {// sinon
+                player.setVelocityX(0); //vitesse nulle
+                player.anims.play('turn');
+            }
+    
+}
+
+class sceneExemple extends Phaser.Scene{
+    constructor(sceneExemple,Niveau1){
+        super("sceneExemple");
+            scene: [sceneExemple,Niveau1]
+    }
+    preload(){
+        //ici le code de la fonction preload 
+    }
+    create(){
+        //ici le code de la fonction create
+    }
+    uptdate(){
+       //ici le code de la fonction updade 
+    }
+};
+
+
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
